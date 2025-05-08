@@ -1,2 +1,2 @@
-# Java-is-Fun
-This repo has every Java program from scratch to advanced OOPs.
+# Java-based-Chess_Applicaton
+This repo has every Java file to make a complete application of chess. ♟️😊
