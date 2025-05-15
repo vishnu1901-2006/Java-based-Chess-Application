@@ -75,5 +75,5 @@ The project is organized into the following packages:
 - Add the ability to play against an AI opponent.
 - Implement network play for playing against other users.
 ### Credits
-> This project was created by [** PARALLEL MINDS **].
+> This project was created by [PARALLEL MINDS].
 > Chess piece images are from [https://github.com/guy-jean/Personal-Projects/tree/9037d656645ad0b7e203c8ed7a56d18ddbb599d6/Java-Projects/Chess/pieces].
