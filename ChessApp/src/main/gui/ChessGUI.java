@@ -1,7 +1,7 @@
 package main.gui;
 
 import main.board.Board;
-
+import main.gui.BoardPanel;
 import javax.swing.*;
 import java.awt.*;
 
@@ -23,6 +23,6 @@ public class ChessGUI extends JFrame {
     }
 
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(main.gui.ChessGUI::new);
+        SwingUtilities.invokeLater(ChessGUI::new);
     }
 }
