@@ -1,5 +1,6 @@
 package main.logic;
 
+import main.logic.Move;
 import main.board.Board;
 import main.board.Square;
 import main.pieces.Piece;
@@ -11,6 +12,7 @@ public class GameState {
     private Piece.Color currentPlayer;
     private MoveValidator moveValidator;
     private boolean gameOver;
+    private Move lastMove;
 
     public GameState(Board board) {
         this.board = board;
@@ -30,6 +32,9 @@ public class GameState {
     public boolean isGameOver() {
         return gameOver;
     }
+    public Move getLastMove() {
+    return lastMove;
+}
 
     /**
      * Attempts to make a move from the start square to the end square.
@@ -57,6 +62,7 @@ public class GameState {
 
             // 3. Perform the move:
             board.movePiece(startSquare, endSquare);
+            lastMove = new Move(startSquare, endSquare);
 
             // 4. Switch the current player.
             switchPlayer();
