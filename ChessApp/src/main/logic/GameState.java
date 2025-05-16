@@ -134,21 +134,23 @@ public class GameState {
      * @param playerColor The color of the player to check.
      * @return true if the player has no legal moves, false otherwise.
      */
-    private boolean hasNoLegalMoves(Piece.Color playerColor) {
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                Square square = board.getSquare(row, col);
-                if (!square.isEmpty() && square.getPiece().getColor() == playerColor) {
-                    Piece piece = square.getPiece();
-                    List<Square> legalMoves = piece.getLegalMoves(board, square);
-                    if (!legalMoves.isEmpty()) {
-                        return false; // Found a legal move, so the player is not stuck.
+     private boolean hasNoLegalMoves(Piece.Color playerColor) {
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            Square square = board.getSquare(row, col);
+            if (!square.isEmpty() && square.getPiece().getColor() == playerColor) {
+                Piece piece = square.getPiece();
+                List<Square> legalMoves = piece.getLegalMoves(board, square);
+                for (Square move : legalMoves) {
+                    if (!moveValidator.isKingInCheckAfterMove(board, square, move, playerColor)) {
+                        return false; // Found a safe legal move
                     }
                 }
             }
         }
-        return true; // No legal moves found.
     }
+    return true; // No legal moves found
+}
 }
 
 
