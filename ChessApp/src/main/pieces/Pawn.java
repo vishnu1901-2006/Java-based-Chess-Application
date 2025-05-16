@@ -83,6 +83,21 @@ public class Pawn extends Piece {
                 }
             }
         }
+        // Call this after a pawn moves
+public void handlePawnPromotion(Pawn pawn, Square destination, Board board) {
+    int row = destination.getRow();
+    // For white: row 0, for black: row 7
+    if ((pawn.getColor() == Color.WHITE && row == 0) ||
+        (pawn.getColor() == Color.BLACK && row == 7)) {
+
+        // Default to Queen promotion; you can prompt the user for choice here
+        Piece promotedPiece = new Queen(pawn.getColor());
+        // To support user choice, use: new Rook(...), new Bishop(...), new Knight(...)
+
+        board.setPiece(destination, promotedPiece);
+        // Optionally: log or notify promotion
+    }
+}
 
         return legalMoves;
     }
