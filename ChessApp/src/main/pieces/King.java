@@ -2,51 +2,57 @@ package main.pieces;
 
 import main.board.Board;
 import main.board.Square;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class King extends Piece {
+
     public King(Color color) {
         super(color);
     }
 
     @Override
-    public List<Square> getLegalMoves(Board board, Square currentSquare) {
+    public List<Square> getLegalMoves(Board board, Square startSquare) {
         List<Square> legalMoves = new ArrayList<>();
-        int row = currentSquare.getRow();
-        int col = currentSquare.getCol();
+        int startRow = startSquare.getRow();
+        int startCol = startSquare.getCol();
 
-        int[][] possibleMoves = {
-                {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1},           {0, 1},
-                {1, -1}, {1, 0}, {1, 1}
+        // All 8 directions (including diagonals) - 1 square move
+        int[][] directions = {
+            {-1, 0}, {1, 0}, {0, -1}, {0, 1}, // Up, Down, Left, Right
+            {-1, -1}, {-1, 1}, {1, -1}, {1, 1} // Diagonals
         };
 
-        for (int[] move : possibleMoves) {
-            int newRow = row + move[0];
-            int newCol = col + move[1];
+        for (int[] dir : directions) {
+            int targetRow = startRow + dir[0];
+            int targetCol = startCol + dir[1];
 
-            if (isValidSquare(newRow, newCol)) {
-                Square targetSquare = board.getSquare(newRow, newCol);
-                if (targetSquare.isEmpty() || targetSquare.getPiece().getColor() != getColor()) {
-                    // TODO: Add check for if the move puts the King in check
-                    legalMoves.add(targetSquare);
+            if (isWithinBounds(targetRow, targetCol)) {
+                Square targetSquare = board.getSquare(targetRow, targetCol);
+                if (targetSquare != null) { // Safeguard
+                    if (targetSquare.isEmpty() || targetSquare.getPiece().getColor() != this.getColor()) {
+                        // This is a pseudo-legal move for the king.
+                        // The MoveValidator will later ensure this move doesn't put the king in check.
+                        legalMoves.add(targetSquare);
+                    }
                 }
             }
         }
 
-        // TODO: Implement castling
+        // TODO: Castling - This is a special move that requires checking:
+        // 1. King and rook have not moved from their initial squares.
+        // 2. No pieces are between the king and the rook.
+        // 3. The king is not currently in check.
+        // 4. The squares the king moves through, and the square it lands on, are not attacked by opponent pieces.
+        // This is typically handled by specific logic in GameState/MoveValidator that calls upon
+        // helper methods in King or Board to check these conditions.
+        // For example, you might add hasMoved flags to Piece, especially King and Rook.
 
         return legalMoves;
     }
 
-    private boolean isValidSquare(int row, int col) {
-        return row >= 0 && row < 8 && col >= 0 && col < 8;
-    }
-
     @Override
     public String toString() {
-        return (getColor() == Color.WHITE ? "W" : "B") + "_King";
+        return (color == Color.WHITE) ? "W_King" : "B_King";
     }
 }
