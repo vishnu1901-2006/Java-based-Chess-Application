@@ -2,59 +2,76 @@ package main.pieces;
 
 import main.board.Board;
 import main.board.Square;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Pawn extends Piece {
+
     public Pawn(Color color) {
         super(color);
     }
 
     @Override
-    public List<Square> getLegalMoves(Board board, Square currentSquare) {
+    public List<Square> getLegalMoves(Board board, Square startSquare) {
         List<Square> legalMoves = new ArrayList<>();
-        int row = currentSquare.getRow();
-        int col = currentSquare.getCol();
-        int direction = (getColor() == Color.WHITE) ? -1 : 1; // White moves up, black moves down
+        int startRow = startSquare.getRow();
+        int startCol = startSquare.getCol();
+        int direction = (color == Color.WHITE) ? -1 : 1; // -1 for white (moves up), 1 for black (moves down)
 
-        // One step forward
-        int nextRow = row + direction;
-        if (isValidSquare(nextRow, col) && board.getSquare(nextRow, col).isEmpty()) {
-            legalMoves.add(board.getSquare(nextRow, col));
+        // 1. One step forward
+        int targetRow = startRow + direction;
+        int targetCol = startCol;
+        if (isWithinBounds(targetRow, targetCol)) {
+            Square oneStepForwardSquare = board.getSquare(targetRow, targetCol);
+            if (oneStepForwardSquare != null && oneStepForwardSquare.isEmpty()) {
+                legalMoves.add(oneStepForwardSquare);
 
-            // Two steps forward (only on the first move)
-            if ((getColor() == Color.WHITE && row == 6) || (getColor() == Color.BLACK && row == 1)) {
-                int twoStepsRow = row + 2 * direction;
-                if (isValidSquare(twoStepsRow, col) && board.getSquare(twoStepsRow, col).isEmpty()) {
-                    legalMoves.add(board.getSquare(twoStepsRow, col));
+                // 2. Two steps forward (only from starting row, and only if one step is also empty)
+                int startingRow = (color == Color.WHITE) ? 6 : 1; // Row 6 for white, Row 1 for black
+                if (startRow == startingRow) {
+                    int twoStepsForwardRow = startRow + 2 * direction;
+                    Square twoStepsForwardSquare = board.getSquare(twoStepsForwardRow, targetCol);
+                    if (twoStepsForwardSquare != null && twoStepsForwardSquare.isEmpty()) {
+                        legalMoves.add(twoStepsForwardSquare);
+                    }
                 }
             }
         }
 
-        // Capturing diagonally
-        int captureLeftCol = col - 1;
-        int captureRightCol = col + 1;
-        if (isValidSquare(nextRow, captureLeftCol) && !board.getSquare(nextRow, captureLeftCol).isEmpty() &&
-            board.getSquare(nextRow, captureLeftCol).getPiece().getColor() != getColor()) {
-            legalMoves.add(board.getSquare(nextRow, captureLeftCol));
-        }
-        if (isValidSquare(nextRow, captureRightCol) && !board.getSquare(nextRow, captureRightCol).isEmpty() &&
-            board.getSquare(nextRow, captureRightCol).getPiece().getColor() != getColor()) {
-            legalMoves.add(board.getSquare(nextRow, captureRightCol));
+        // 3. Captures (diagonal)
+        // Check left diagonal capture
+        int leftCaptureRow = startRow + direction;
+        int leftCaptureCol = startCol - 1;
+        if (isWithinBounds(leftCaptureRow, leftCaptureCol)) {
+            Square leftCaptureSquare = board.getSquare(leftCaptureRow, leftCaptureCol);
+            if (leftCaptureSquare != null && !leftCaptureSquare.isEmpty() && leftCaptureSquare.getPiece().getColor() != this.getColor()) {
+                legalMoves.add(leftCaptureSquare);
+            }
         }
 
-        // TODO: Implement en passant
+        // Check right diagonal capture
+        int rightCaptureRow = startRow + direction;
+        int rightCaptureCol = startCol + 1;
+        if (isWithinBounds(rightCaptureRow, rightCaptureCol)) {
+            Square rightCaptureSquare = board.getSquare(rightCaptureRow, rightCaptureCol);
+            if (rightCaptureSquare != null && !rightCaptureSquare.isEmpty() && rightCaptureSquare.getPiece().getColor() != this.getColor()) {
+                legalMoves.add(rightCaptureSquare);
+            }
+        }
+
+        // TODO: En Passant - This is complex and requires checking the *last* move made on the board.
+        // It's not something a Piece can determine solely from Board and startSquare.
+        // It would likely involve a check in GameState or MoveValidator based on the opponent's previous pawn move.
+
+        // TODO: Pawn Promotion Eligibility - The moves added above already cover reaching the 8th rank.
+        // The actual promotion logic (asking user for choice) will be handled in GameState.makeMove
+        // after a pawn moves to the last rank.
 
         return legalMoves;
     }
 
-    private boolean isValidSquare(int row, int col) {
-        return row >= 0 && row < 8 && col >= 0 && col < 8;
-    }
-
     @Override
     public String toString() {
-        return (getColor() == Color.WHITE ? "W" : "B") + "_Pawn";
+        return (color == Color.WHITE) ? "W_Pawn" : "B_Pawn";
     }
 }
