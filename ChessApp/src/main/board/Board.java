@@ -56,14 +56,16 @@ public class Board {
         }
         return null; // Handle out of bounds
     }
-
-    public void movePiece(Square startSquare, Square endSquare) {
-        Piece pieceToMove = startSquare.getPiece();
-        if (pieceToMove != null) {
-            endSquare.setPiece(pieceToMove);
-            startSquare.setPiece(null);
-        }
+    // Only to be used by validated move logic (e.g., GameState)
+void movePiece(Square startSquare, Square endSquare) {
+    if (startSquare == null || endSquare == null) return;
+    Piece pieceToMove = startSquare.getPiece();
+    if (pieceToMove != null) {
+        endSquare.setPiece(pieceToMove);
+        startSquare.setPiece(null);
     }
+}
+    
 
     // You'll likely add methods here for checking for checkmate, stalemate, etc.
 }
