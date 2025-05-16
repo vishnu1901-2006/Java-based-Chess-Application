@@ -12,7 +12,7 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public List<Square> getLegalMoves(Board board, Square startSquare) {
+    public List<Square> getLegalMoves(Board board, Square startSquare, Move lastMove) {
         List<Square> legalMoves = new ArrayList<>();
         int startRow = startSquare.getRow();
         int startCol = startSquare.getCol();
@@ -59,13 +59,30 @@ public class Pawn extends Piece {
             }
         }
 
-        // TODO: En Passant - This is complex and requires checking the *last* move made on the board.
-        // It's not something a Piece can determine solely from Board and startSquare.
-        // It would likely involve a check in GameState or MoveValidator based on the opponent's previous pawn move.
+        // 4. En Passant Logic
+        if (lastMove != null) {
+            Piece movedPiece = lastMove.getMovedPiece();
+            int startRowOfLastMove = lastMove.getStartSquare().getRow();
+            int endRowOfLastMove = lastMove.getEndSquare().getRow();
+            int startColOfLastMove = lastMove.getStartSquare().getCol();
+            int endColOfLastMove = lastMove.getEndSquare().getCol();
 
-        // TODO: Pawn Promotion Eligibility - The moves added above already cover reaching the 8th rank.
-        // The actual promotion logic (asking user for choice) will be handled in GameState.makeMove
-        // after a pawn moves to the last rank.
+            // Check if last move was a pawn moving two steps
+            if (movedPiece instanceof Pawn && Math.abs(startRowOfLastMove - endRowOfLastMove) == 2) {
+                // Check if the opponent pawn is adjacent horizontally to this pawn
+                if (endRowOfLastMove == startRow && Math.abs(endColOfLastMove - startCol) == 1) {
+                    // The square behind the opponent pawn (where the pawn can move to capture en passant)
+                    int enPassantCaptureRow = startRow + direction;
+                    int enPassantCaptureCol = endColOfLastMove;
+                    if (isWithinBounds(enPassantCaptureRow, enPassantCaptureCol)) {
+                        Square enPassantSquare = board.getSquare(enPassantCaptureRow, enPassantCaptureCol);
+                        if (enPassantSquare != null && enPassantSquare.isEmpty()) {
+                            legalMoves.add(enPassantSquare);
+                        }
+                    }
+                }
+            }
+        }
 
         return legalMoves;
     }
@@ -73,5 +90,9 @@ public class Pawn extends Piece {
     @Override
     public String toString() {
         return (color == Color.WHITE) ? "W_Pawn" : "B_Pawn";
+    }
+
+    private boolean isWithinBounds(int row, int col) {
+        return row >= 0 && row < 8 && col >= 0 && col < 8;
     }
 }
