@@ -2,47 +2,45 @@ package main.pieces;
 
 import main.board.Board;
 import main.board.Square;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Knight extends Piece {
+
     public Knight(Color color) {
         super(color);
     }
 
     @Override
-    public List<Square> getLegalMoves(Board board, Square currentSquare) {
+    public List<Square> getLegalMoves(Board board, Square startSquare) {
         List<Square> legalMoves = new ArrayList<>();
-        int row = currentSquare.getRow();
-        int col = currentSquare.getCol();
+        int startRow = startSquare.getRow();
+        int startCol = startSquare.getCol();
 
-        int[][] possibleMoves = {
-                {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2},
-                {1, -2}, {1, 2}, {2, -1}, {2, 1}
+        // All 8 L-shaped moves for a knight
+        int[][] knightMoves = {
+            {-2, -1}, {-2, 1}, {-1, -2}, {-1, 2}, // Two steps in one direction, one step in perpendicular
+            {1, -2}, {1, 2}, {2, -1}, {2, 1}
         };
 
-        for (int[] move : possibleMoves) {
-            int newRow = row + move[0];
-            int newCol = col + move[1];
+        for (int[] move : knightMoves) {
+            int targetRow = startRow + move[0];
+            int targetCol = startCol + move[1];
 
-            if (isValidSquare(newRow, newCol)) {
-                Square targetSquare = board.getSquare(newRow, newCol);
-                if (targetSquare.isEmpty() || targetSquare.getPiece().getColor() != getColor()) {
-                    legalMoves.add(targetSquare);
+            if (isWithinBounds(targetRow, targetCol)) {
+                Square targetSquare = board.getSquare(targetRow, targetCol);
+                if (targetSquare != null) { // Safeguard
+                    if (targetSquare.isEmpty() || targetSquare.getPiece().getColor() != this.getColor()) {
+                        legalMoves.add(targetSquare);
+                    }
                 }
             }
         }
-
         return legalMoves;
-    }
-
-    private boolean isValidSquare(int row, int col) {
-        return row >= 0 && row < 8 && col >= 0 && col < 8;
     }
 
     @Override
     public String toString() {
-        return (getColor() == Color.WHITE ? "W" : "B") + "_Knight";
+        return (color == Color.WHITE) ? "W_Knight" : "B_Knight";
     }
 }
