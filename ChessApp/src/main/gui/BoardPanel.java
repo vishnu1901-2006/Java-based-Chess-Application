@@ -16,13 +16,15 @@ import java.util.Map;
 
 public class BoardPanel extends JPanel implements MouseListener {
 
+    private GameState gameState; // Add to BoardPanel
     private final Board board;
     private final int SQUARE_SIZE = 70; // Adjust as needed
     private Square selectedSquare = null;
     private Map<String, Image> pieceImages;
 
-    public BoardPanel(Board board) {
+    public BoardPanel(Board board, GameState gameState) {
         this.board = board;
+        this.gameState = gameState;
         setPreferredSize(new Dimension(8 * SQUARE_SIZE, 8 * SQUARE_SIZE));
         addMouseListener(this);
         loadPieceImages();
@@ -70,6 +72,9 @@ public class BoardPanel extends JPanel implements MouseListener {
                     Image pieceImage = pieceImages.get(piece.toString());
                     if (pieceImage != null) {
                         g.drawImage(pieceImage, col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE, this);
+                    } else {
+                        // Optionally draw a placeholder or log a warning
+                        System.err.println("Missing image for " + piece.toString());
                     }
                 }
 
@@ -88,27 +93,29 @@ public class BoardPanel extends JPanel implements MouseListener {
         int row = e.getY() / SQUARE_SIZE;
 
         Square clickedSquare = board.getSquare(row, col);
-
-        if (selectedSquare == null) {
-            // Select a piece
-            if (clickedSquare != null && !clickedSquare.isEmpty()) {
-                selectedSquare = clickedSquare;
-                repaint();
-            }
+        // In mouseClicked:
+if (selectedSquare == null) {
+    // Select a piece
+    if (clickedSquare != null && !clickedSquare.isEmpty() &&
+        clickedSquare.getPiece().getColor() == gameState.getCurrentPlayer()) {
+        selectedSquare = clickedSquare;
+        repaint();
+    }
+} else {
+    // Attempt to make a validated move
+    if (clickedSquare != null) {
+        boolean moveSuccess = gameState.makeMove(selectedSquare, clickedSquare);
+        if (moveSuccess) {
+            selectedSquare = null;
+            repaint();
         } else {
-            // Move the piece
-            if (clickedSquare != null) {
-                // Basic move implementation - needs validation
-                board.movePiece(selectedSquare, clickedSquare);
-                selectedSquare = null;
-                repaint();
-            } else {
-                // Deselect if clicked outside the board (shouldn't happen with current setup)
-                selectedSquare = null;
-                repaint();
-            }
+            // Optionally give visual/audio feedback for invalid move
+            selectedSquare = null;
+            repaint();
         }
     }
+}
+        
 
     @Override
     public void mousePressed(MouseEvent e) {
