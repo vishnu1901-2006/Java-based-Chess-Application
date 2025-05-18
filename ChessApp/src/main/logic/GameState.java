@@ -1,5 +1,6 @@
 package main.logic;
 
+import main.logic.Move;
 import main.board.Board;
 import main.board.Square;
 import main.pieces.Piece;
@@ -11,6 +12,7 @@ public class GameState {
     private Piece.Color currentPlayer;
     private MoveValidator moveValidator;
     private boolean gameOver;
+    private Move lastMove;
 
     public GameState(Board board) {
         this.board = board;
@@ -30,6 +32,9 @@ public class GameState {
     public boolean isGameOver() {
         return gameOver;
     }
+    public Move getLastMove() {
+    return lastMove;
+}
 
     /**
      * Attempts to make a move from the start square to the end square.
@@ -57,6 +62,7 @@ public class GameState {
 
             // 3. Perform the move:
             board.movePiece(startSquare, endSquare);
+            lastMove = new Move(startSquare, endSquare);
 
             // 4. Switch the current player.
             switchPlayer();
@@ -128,21 +134,23 @@ public class GameState {
      * @param playerColor The color of the player to check.
      * @return true if the player has no legal moves, false otherwise.
      */
-    private boolean hasNoLegalMoves(Piece.Color playerColor) {
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                Square square = board.getSquare(row, col);
-                if (!square.isEmpty() && square.getPiece().getColor() == playerColor) {
-                    Piece piece = square.getPiece();
-                    List<Square> legalMoves = piece.getLegalMoves(board, square);
-                    if (!legalMoves.isEmpty()) {
-                        return false; // Found a legal move, so the player is not stuck.
+     private boolean hasNoLegalMoves(Piece.Color playerColor) {
+    for (int row = 0; row < 8; row++) {
+        for (int col = 0; col < 8; col++) {
+            Square square = board.getSquare(row, col);
+            if (!square.isEmpty() && square.getPiece().getColor() == playerColor) {
+                Piece piece = square.getPiece();
+                List<Square> legalMoves = piece.getLegalMoves(board, square);
+                for (Square move : legalMoves) {
+                    if (!moveValidator.isKingInCheckAfterMove(board, square, move, playerColor)) {
+                        return false; // Found a safe legal move
                     }
                 }
             }
         }
-        return true; // No legal moves found.
     }
+    return true; // No legal moves found
+}
 }
 
 

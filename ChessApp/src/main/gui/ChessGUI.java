@@ -8,8 +8,9 @@ import java.awt.*;
 public class ChessGUI extends JFrame {
     private Board board;
     private BoardPanel boardPanel;
-
-    public ChessGUI() {
+    private GameState gameState;
+    public ChessGUI(GameState gameState) {
+        this.gameState = gameState;
         setTitle("Chess Application");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(600, 600);

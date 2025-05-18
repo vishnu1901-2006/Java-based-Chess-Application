@@ -1,3 +1,4 @@
+// Filename: Bishop.java
 package main.pieces;
 
 import main.board.Board;
@@ -6,8 +7,8 @@ import main.board.Square;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BIshop extends Piece {
-    public BIshop(Color color) {
+public class Bishop extends Piece {
+    public Bishop(Color color) {
         super(color);
     }
 
